@@ -9,12 +9,15 @@
 #include <iostream>
 #include <string.h>
 #include "Leap.h"
+#include <cmath>
 
 using namespace Leap;
 
 int seconds = 0;
 int cnt_A = 0;
-const char  letts[]  = { 'a', 'b' , 'c' , 'd' , 'e' } ;
+const int arr_size = 5;
+const char  letts_left[3][5]  = { { 'z', 'x' , 'c' , 'v' , 'b' } , { 'a' , 's', 'd', 'f', 'g'} , { 'q', 'w', 'd', 'e', 'r'} };   
+int last_row = 0;
 
 class SampleListener : public Listener {
   public:
@@ -30,7 +33,8 @@ class SampleListener : public Listener {
     virtual void onServiceDisconnect(const Controller&);
 
   private:
-	  char getLetter(int arr[], int size);
+	  char getLetter(int arr[], int size, int row);
+    int findRow ( int arr[] , int size);
 };
 
 const std::string fingerNames[] = {"Thumb", "Index", "Middle", "Ring", "Pinky"};
@@ -58,7 +62,7 @@ void SampleListener::onExit(const Controller& controller) {
   std::cout << "Exited" << std::endl;
 }
 
-char SampleListener::getLetter(int arr[] , int size ) { 
+char SampleListener::getLetter(int arr[] , int size, int row ) { 
 	/*
 
 	std::cout <<"th" << arr[0] << std::endl;
@@ -82,15 +86,47 @@ char SampleListener::getLetter(int arr[] , int size ) {
 	//std::cout << min << std::endl;
 	if( min_index + 1 == size ) {
 		if(arr[min_index - 1] - arr[min_index] > 30) {
-			return letts[min_index];
+      
+      return letts_left[row][min_index];
+       
 		}
 	}
 	else{
 		if(arr[min_index +1] - arr[min_index] > 30) {
-			return letts[min_index];
+
+      return letts_left[row][min_index];
+
 		}
+
 	}
 	return NULL;
+}
+
+
+int SampleListener::findRow(int arr[], int size){
+
+
+/*
+  int sum = 0;
+
+  for( int i = 0 ; i < size; i++){
+    sum = sum + arr[i];
+  }
+
+  int avg = sum / size;
+
+  */
+
+  if(arr[2]  < -60){
+    return 2;
+  }
+  else if(arr[2] >  -20 ){
+    return 0;
+  }
+  else{
+    return 1;
+  }
+
 }
 
 void SampleListener::onFrame(const Controller& controller) {
@@ -107,6 +143,7 @@ void SampleListener::onFrame(const Controller& controller) {
   for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {
     // Get the first hand
     const Hand hand = *hl;
+    bool is_left = hand.isLeft()
 	/*
     std::string handType = hand.isLeft() ? "Left hand" : "Right hand";
     std::cout << std::string(2, ' ') << handType << ", id: " << hand.id()
@@ -142,30 +179,68 @@ void SampleListener::onFrame(const Controller& controller) {
 
 	*/
   // test code
+
+  const FingerList testFingers = hand.fingers();
+  int fingerNumbersY[arr_size];
+  int fingerNumbersX[arr_size];
+  int fingerNumbersZ[arr_size];
+  int cnt = 0;
+  for (FingerList::const_iterator fl = testFingers.begin(); fl != testFingers.end(); ++fl) {
+    const Finger finger = *fl;
+    fingerNumbersZ[cnt] = finger.tipPosition()[2];
+    fingerNumbersY[cnt] = finger.tipPosition()[1];
+    fingerNumbersX[cnt] = finger.tipPosition()[0];
+    cnt++;
+  }
+  
+	char letter_pressed;
+
+	if(is_left)
+  {
+      letter_pressed = getLetter( , arr_size)
+  }
+  else
+  {
+
+  }
+
 	
 	
-	const FingerList testFingers = hand.fingers();
-	int fingerNumbers[5];
-	int cnt = 0;
-	for (FingerList::const_iterator fl = testFingers.begin(); fl != testFingers.end(); ++fl) {
-		const Finger finger = *fl;
-		fingerNumbers[cnt] = finger.tipPosition()[1];
-		cnt++;
-	}
-	/*
-	std::cout <<"th" << fingerNumbers[0] << std::endl;
-	std::cout << "ind" << fingerNumbers[1] << std::endl;
-	std::cout << "mid"<< fingerNumbers[2] << std::endl;
-	std::cout << "ring" << fingerNumbers[3] << std::endl;
-	std::cout << "pinky" << fingerNumbers[4] << std::endl;
-	*/
+/*	std::cout <<"thX " << fingerNumbersX[0] << std::endl;
+	std::cout << "indX"  << fingerNumbersX[1] << std::endl;
+	std::cout << "midX "<< fingerNumbersX[2] << std::endl;
+	std::cout << "ringX " << fingerNumbersX[3] << std::endl;
+	std::cout << "pinkyX " << fingerNumbersX[4] << std::endl;
+
+  std::cout <<"thY " << fingerNumbersY[0] << std::endl;
+  std::cout << "indY " << fingerNumbersY[1] << std::endl;
+  std::cout << "midY "<< fingerNumbersY[2] << std::endl;
+  std::cout << "ringY " << fingerNumbersY[3] << std::endl;
+  std::cout << "pinkyY " << fingerNumbersY[4] << std::endl;
+
+
+  std::cout <<"thZ " << fingerNumbersZ[0] << std::endl;
+  std::cout << "indZ " << fingerNumbersZ[1] << std::endl;
+  std::cout << "midZ "<< fingerNumbersZ[2] << std::endl;
+  std::cout << "ringZ " << fingerNumbersZ[3] << std::endl;
+  std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;*/
+	
+    int row = findRow(fingerNumbersZ, arr_size);
 		if(seconds != 0) {
+			if(last_row != row){
+        last_row = row;
+      }
+      else{
+        return;
+      }
+        return;
+		}
+
+		if(getLetter(fingerNumbersY , arr_size, last_row ) == NULL) {
 			return;
 		}
-		if(getLetter(fingerNumbers , 5 ) == NULL) {
-			return;
-		}
-		std::cout << getLetter(fingerNumbers , 5 );
+
+		std::cout << getLetter(fingerNumbersY , arr_size, last_row );
 
 
 
