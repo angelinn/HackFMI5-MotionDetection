@@ -39,7 +39,9 @@ private:
 	char getLetter(int arr[], int size, int row, int offset);
 	int findRow(int arr[], int size);
 	int get_min(int * arr, int size);
-	void print_letter(const Hand& hand, int index, int row);
+	char get_letter(const Hand& hand, int index, int row);
+
+	char last_pressed[2];
 };
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
@@ -48,6 +50,8 @@ const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE
 
 void SampleListener::onInit(const Controller& controller) {
 	std::cout << "Initialized" << std::endl;
+	last_pressed[0] = '!';
+	last_pressed[1] = '!';
 }
 
 void SampleListener::onConnect(const Controller& controller) {
@@ -80,12 +84,12 @@ int SampleListener::get_min(int* arr, int size)
 		}
 	}
 
-	if (min_index + 1 == size &&  arr[min_index - 1] - arr[min_index] > 30)
+	if (min_index + 1 == size &&  arr[min_index - 1] - arr[min_index] > 20)
 		return min_index;
-	else if (arr[min_index + 1] - arr[min_index] > 30)
+	else if (arr[min_index + 1] - arr[min_index] > 20)
 		return min_index;
 
-	return NULL;
+	return '!';
 }
 /*
 char SampleListener::getLetter(int arr[] , int size, int row, int offset ) {
@@ -128,14 +132,14 @@ return letts_left[row][min_index + offset];
 return NULL;
 }
 */
-void SampleListener::print_letter(const Hand& hand, int index, int row)
+char SampleListener::get_letter(const Hand& hand, int index, int row)
 {
 	if (!hand.isLeft())
 		index = index + 5;
 	else
 		index = 4 - index;
 
-	std::cout << LETTERS[row][index];
+	return LETTERS[2 - row][index];
 }
 int SampleListener::findRow(int arr[], int size){
 	if (arr[2]  < -60){
@@ -232,11 +236,23 @@ void SampleListener::onFrame(const Controller& controller) {
 		std::cout << "midZ "<< fingerNumbersZ[2] << std::endl;
 		std::cout << "ringZ " << fingerNumbersZ[3] << std::endl;
 		std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;*/
-
+		int index = 0;
+		if (!hand.isLeft())
+			index = 1;
 		int min_index = get_min(fingerNumbersY, arr_size);
-		if (min_index)
-			print_letter(hand, min_index , findRow(fingerNumbersZ, arr_size));
-
+		if (min_index != '!'){
+			char current = get_letter(hand, min_index, findRow(fingerNumbersZ, arr_size));
+			if (current == last_pressed[index])
+				break;
+			std::cout << current;
+			last_pressed[index] = current;
+		}
+		else
+		{
+			last_pressed[index] = '!';
+		}
+		//else
+			//std::cout << "0";
 		/*
 		int row = findRow(fingerNumbersZ, arr_size);
 		
