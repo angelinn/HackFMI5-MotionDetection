@@ -16,7 +16,9 @@ using namespace Leap;
 int seconds = 0;
 int cnt_A = 0;
 const int arr_size = 5;
-const char  letts_left[3][5]  = { { 'z', 'x' , 'c' , 'v' , 'b' } , { 'a' , 's', 'd', 'f', 'g'} , { 'q', 'w', 'd', 'e', 'r'} };   
+const char  letts_left[3][10]  = { { 'z', 'x' , 'c' , 'v' , 'b' , 'n', 'm', ',', '.' ,'/' } ,
+                                  { 'a' , 's', 'd', 'f', 'g' , 'h' , 'j' , 'k' , 'l' , ';'} ,
+                                  { 'q', 'w', 'e', 'r' , 't' , 'y' , 'u' , 'i' , 'o' , 'p'} };   
 int last_row = 0;
 
 class SampleListener : public Listener {
@@ -33,7 +35,7 @@ class SampleListener : public Listener {
     virtual void onServiceDisconnect(const Controller&);
 
   private:
-	  char getLetter(int arr[], int size, int row);
+	  char getLetter(int arr[], int size, int row, int offset);
     int findRow ( int arr[] , int size);
 };
 
@@ -62,7 +64,7 @@ void SampleListener::onExit(const Controller& controller) {
   std::cout << "Exited" << std::endl;
 }
 
-char SampleListener::getLetter(int arr[] , int size, int row ) { 
+char SampleListener::getLetter(int arr[] , int size, int row, int offset ) { 
 	/*
 
 	std::cout <<"th" << arr[0] << std::endl;
@@ -87,14 +89,14 @@ char SampleListener::getLetter(int arr[] , int size, int row ) {
 	if( min_index + 1 == size ) {
 		if(arr[min_index - 1] - arr[min_index] > 30) {
       
-      return letts_left[row][min_index];
+      return letts_left[row][min_index + offset];
        
 		}
 	}
 	else{
 		if(arr[min_index +1] - arr[min_index] > 30) {
 
-      return letts_left[row][min_index];
+      return letts_left[row][min_index + offset];
 
 		}
 
@@ -143,7 +145,7 @@ void SampleListener::onFrame(const Controller& controller) {
   for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {
     // Get the first hand
     const Hand hand = *hl;
-    bool is_left = hand.isLeft()
+    bool is_left = hand.isLeft();
 	/*
     std::string handType = hand.isLeft() ? "Left hand" : "Right hand";
     std::cout << std::string(2, ' ') << handType << ", id: " << hand.id()
@@ -173,7 +175,7 @@ void SampleListener::onFrame(const Controller& controller) {
       const Finger finger = *fl;
       std::cout << std::string(4, ' ') <<  fingerNames[finger.type()]
                 << ", length: " << finger.length()
-                //<< "mm, width: " << finger.width() 
+                //<< "mm, width: " << finger.width() cd 
 				<<"XXXXXXXXXXXXX"<<finger.tipPosition()<< std::endl;
 	}}
 
@@ -192,17 +194,7 @@ void SampleListener::onFrame(const Controller& controller) {
     fingerNumbersX[cnt] = finger.tipPosition()[0];
     cnt++;
   }
-  
-	char letter_pressed;
 
-	if(is_left)
-  {
-      letter_pressed = getLetter( , arr_size)
-  }
-  else
-  {
-
-  }
 
 	
 	
@@ -224,7 +216,8 @@ void SampleListener::onFrame(const Controller& controller) {
   std::cout << "midZ "<< fingerNumbersZ[2] << std::endl;
   std::cout << "ringZ " << fingerNumbersZ[3] << std::endl;
   std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;*/
-	
+	 
+
     int row = findRow(fingerNumbersZ, arr_size);
 		if(seconds != 0) {
 			if(last_row != row){
@@ -236,13 +229,14 @@ void SampleListener::onFrame(const Controller& controller) {
         return;
 		}
 
-		if(getLetter(fingerNumbersY , arr_size, last_row ) == NULL) {
+		if(getLetter(fingerNumbersY , arr_size, last_row, 0 ) == NULL) {
 			return;
 		}
 
-		std::cout << getLetter(fingerNumbersY , arr_size, last_row );
-
-
+    if(is_left)
+		  std::cout << getLetter(fingerNumbersY , arr_size, last_row, 0 );
+    else
+      std::cout << getLetter(fingerNumbersY , arr_size, last_row, 5 );
 
   }
 
