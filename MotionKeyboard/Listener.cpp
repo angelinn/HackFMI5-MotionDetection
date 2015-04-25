@@ -10,6 +10,10 @@
 #include <string.h>
 #include "LeapSDK/include/Leap.h"
 #include <cmath>
+#include <vector>
+#include <Windows.h>
+
+using std::vector;
 
 using namespace Leap;
 
@@ -17,9 +21,9 @@ int seconds = 0;
 int cnt_A = 0;
 const int arr_size = 5;
 const char LETTERS[3][10] = { { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
-{ 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', ';' },
-{ 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '/' } };
-
+							  { 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\n' },
+							  { 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', ' ', '=' } };
+#define SPEED_OFFSET 1
 int last_row = 0;
 
 class SampleListener : public Listener {
@@ -36,12 +40,22 @@ public:
 	virtual void onServiceDisconnect(const Controller&);
 
 private:
+	bool is_start(const Hand& hand);
 	char getLetter(int arr[], int size, int row, int offset);
 	int findRow(int arr[], int size);
 	int get_min(int * arr, int size);
+	std::vector< std::pair<int, int> > sorted(int* arr , int size);
 	char get_letter(const Hand& hand, int index, int row);
-
+	void print_scr(int row);
 	char last_pressed[2];
+	unsigned int frame_counter;
+private:
+	vector<char> line;
+	bool start;
+	int last_position;
+	int upper_bound;
+	int lower_bound;
+	bool CapsLock;
 };
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
@@ -51,7 +65,10 @@ const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE
 void SampleListener::onInit(const Controller& controller) {
 	std::cout << "Initialized" << std::endl;
 	last_pressed[0] = '!';
+	frame_counter = 0;
 	last_pressed[1] = '!';
+	this-> start = false ;
+	CapsLock = false;
 }
 
 void SampleListener::onConnect(const Controller& controller) {
@@ -71,6 +88,45 @@ void SampleListener::onExit(const Controller& controller) {
 	std::cout << "Exited" << std::endl;
 }
 
+bool SampleListener::is_start(const Hand& hand)
+{
+	if(!start)
+	{
+		if(frame_counter % 10 != 0)
+			return false;
+
+		const FingerList fingers = hand.fingers();
+
+		int new_z;
+		int tmh_z;
+		for (FingerList::const_iterator fl = fingers.begin(); fl != fingers.end(); ++fl) 
+		{
+			const Finger finger = *fl;
+			if (fingerNames[finger.type()] == "Middle")
+			{
+				new_z = finger.tipPosition()[2];
+			}
+			else if (fingerNames[finger.type()] == "Thumb")
+			{
+				tmh_z = finger.tipPosition()[2];
+			}
+		}
+		std::cout << "( " << new_z << " , " << last_position << std::endl;
+		if (abs(new_z-last_position) < SPEED_OFFSET)
+		{
+			start = true;
+			int offset = abs (new_z - tmh_z);
+			upper_bound = new_z +(1/8)*offset;
+			lower_bound = new_z - offset - (1/8)*offset;
+		}
+		else
+		{
+			last_position = new_z;
+			return false;
+		}
+	}else 
+		return true;
+}
 int SampleListener::get_min(int* arr, int size)
 {
 	int f_pos = -1;
@@ -83,13 +139,19 @@ int SampleListener::get_min(int* arr, int size)
 
 		}
 	}
+	//std::vector< std::pair<int, int> > result = sorted(arr , size);
 
+	//if( result[0].first < result[1].first - 15)
+		//return result[0].second;
+	//else 
+		//return -1;
+	// 
 	if (min_index + 1 == size &&  arr[min_index - 1] - arr[min_index] > 20)
 		return min_index;
 	else if (arr[min_index + 1] - arr[min_index] > 20)
 		return min_index;
 
-	return '!';
+	return -1;
 }
 /*
 char SampleListener::getLetter(int arr[] , int size, int row, int offset ) {
@@ -142,10 +204,10 @@ char SampleListener::get_letter(const Hand& hand, int index, int row)
 	return LETTERS[2 - row][index];
 }
 int SampleListener::findRow(int arr[], int size){
-	if (arr[2]  < -60){
+	if (arr[2]  < lower_bound){
 		return 2;
 	}
-	else if (arr[2] >  -20){
+	else if (arr[2] > upper_bound){
 		return 0;
 	}
 	else{
@@ -154,7 +216,16 @@ int SampleListener::findRow(int arr[], int size){
 
 }
 
+void SampleListener::print_scr(int row){
+	system("cls");
+	std::cout << "You are on row: "<< row << std::endl;
+	for ( int i =0; i < line.size(); i++) {
+		std::cout << line[i];
+	}
+}
+
 void SampleListener::onFrame(const Controller& controller) {
+	
 	seconds++;
 	seconds = seconds % 20;
 	// Get the most recent frame and report some basic information
@@ -178,6 +249,8 @@ void SampleListener::onFrame(const Controller& controller) {
 		const Vector normal = hand.palmNormal();
 		const Vector direction = hand.direction();
 
+		if(!is_start(hand))
+			return;
 		/*
 		// Calculate the hand's pitch, roll, and yaw angles
 		std::cout << std::string(2, ' ') <<  "pitch: " << direction.pitch() * RAD_TO_DEG << " degrees, "
@@ -217,8 +290,8 @@ void SampleListener::onFrame(const Controller& controller) {
 			fingerNumbersX[cnt] = finger.tipPosition()[0];
 			cnt++;
 		}
-
-		/*	std::cout <<"thX " << fingerNumbersX[0] << std::endl;
+		/*
+			std::cout <<"thX " << fingerNumbersX[0] << std::endl;
 		std::cout << "indX"  << fingerNumbersX[1] << std::endl;
 		std::cout << "midX "<< fingerNumbersX[2] << std::endl;
 		std::cout << "ringX " << fingerNumbersX[3] << std::endl;
@@ -235,22 +308,78 @@ void SampleListener::onFrame(const Controller& controller) {
 		std::cout << "indZ " << fingerNumbersZ[1] << std::endl;
 		std::cout << "midZ "<< fingerNumbersZ[2] << std::endl;
 		std::cout << "ringZ " << fingerNumbersZ[3] << std::endl;
-		std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;*/
+		std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;
+		*/
+		//std::cout << min_index << std::endl;
+		
+
+		//else{
+		int row = findRow(fingerNumbersZ, arr_size);
 		int index = 0;
 		if (!hand.isLeft())
 			index = 1;
 		int min_index = get_min(fingerNumbersY, arr_size);
-		if (min_index != '!'){
+
+		if (min_index >= 0){
+				
 			char current = get_letter(hand, min_index, findRow(fingerNumbersZ, arr_size));
 			if (current == last_pressed[index])
 				break;
-			std::cout << current;
-			last_pressed[index] = current;
+			//std::cout << current;
+			if(current != '='){
+				line.push_back(current);
+				last_pressed[index] = current;
+			}
+			else
+			{
+				if(!line.empty())
+					line.pop_back();
+				last_pressed[index] = current;
+			}
+			if(last_pressed[index] == 'a'){
+						  Beep(261,100);
+                      }
+              if(last_pressed[index] == 's'){
+						  Beep(293,100);
+                      }
+              if(last_pressed[index] == 'd'){
+						  Beep(329,100);
+                      }
+              if(last_pressed[index] == 'f'){
+						  Beep(349,100);
+                      }
+              if(last_pressed[index] == 'g'){
+						  Beep(392,100);
+                      }
+              if(last_pressed[index] == 'h'){
+						  Beep(440,100);
+                      }
+              if(last_pressed[index] == 'j'){
+						  Beep(493,100);
+                      }                      
+              if(last_pressed[index] == 'k'){
+						  Beep(523,100);
+                      }                      
+              if(last_pressed[index] == 'l'){
+						  Beep(587,100);
+                      }
+              if(last_pressed[index] == 'z'){
+						  Beep(659,100);
+                      }  
+              if(last_pressed[index] == 'x'){
+						  Beep(698,100);
+                      } 
+               if(last_pressed[index] == 'c'){
+						  Beep(784,100);
+                      } 
 		}
 		else
-		{
+		{	
 			last_pressed[index] = '!';
 		}
+			print_scr(row);
+		//}
+		
 		//else
 			//std::cout << "0";
 		/*
