@@ -8,7 +8,7 @@
 
 #include <iostream>
 #include <string.h>
-#include "Leap.h"
+#include "LeapSDK/include/Leap.h"
 #include <cmath>
 
 using namespace Leap;
