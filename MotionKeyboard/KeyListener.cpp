@@ -22,6 +22,8 @@ const int LAST_KEY_NONE = -1;
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
 const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END" };
+const SDL_Color white = { 255, 255, 255, 255 };
+const SDL_Color red = { 255, 0, 0, 255 };
 
 void KeyListener::onInit(const Controller& controller) {
 	std::cout << "Initialized" << std::endl;
@@ -31,6 +33,8 @@ void KeyListener::onInit(const Controller& controller) {
 	lastKey = LAST_KEY_NONE;
 	this-> start = false ;
 	CapsLock = false;
+	keyboard.CreateWindow();
+	keyboard.DrawKeyBoard();
 }
 
 void KeyListener::onConnect(const Controller& controller) {
@@ -69,12 +73,15 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 			line.pop_back();
 		last_pressed[index] = current;
 	}
+
+	keyboard.changeColours(current, red);
+
 	return current;
 }
 
 void KeyListener::onRelease(char lastKey)
 {
-
+	keyboard.changeColours(lastKey, white);
 }
 
 bool KeyListener::is_start(const Hand& hand)

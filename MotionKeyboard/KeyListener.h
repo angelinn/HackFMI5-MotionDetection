@@ -3,7 +3,7 @@
 #include "LeapSDK/include/Leap.h"
 #include <cmath>
 #include <vector>
-#include <Windows.h>
+#include "KeyBoardGUI.h"
 
 using std::vector;
 
@@ -45,4 +45,5 @@ private:
 	int lower_bound;
 	char lastKey;
 	bool CapsLock;
+	KeyBoardGUI keyboard;
 };
