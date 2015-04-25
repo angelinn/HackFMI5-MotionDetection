@@ -77,11 +77,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Listener.cpp" />
+    <ClCompile Include="KeyListener.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Keyboard.h" />
+    <ClInclude Include="KeyListener.h" />
     <ClInclude Include="MotionHelper.h" />
     <ClInclude Include="Tip.h" />
   </ItemGroup>
