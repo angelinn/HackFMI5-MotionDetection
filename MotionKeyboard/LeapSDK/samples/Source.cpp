@@ -14,6 +14,7 @@ using namespace Leap;
 
 int seconds = 0;
 int cnt_A = 0;
+const char  letts[]  = { 'a', 'b' , 'c' , 'd' , 'e' } ;
 
 class SampleListener : public Listener {
   public:
@@ -29,7 +30,7 @@ class SampleListener : public Listener {
     virtual void onServiceDisconnect(const Controller&);
 
   private:
-
+	  char getLetter(int arr[], int size);
 };
 
 const std::string fingerNames[] = {"Thumb", "Index", "Middle", "Ring", "Pinky"};
@@ -55,6 +56,41 @@ void SampleListener::onDisconnect(const Controller& controller) {
 
 void SampleListener::onExit(const Controller& controller) {
   std::cout << "Exited" << std::endl;
+}
+
+char SampleListener::getLetter(int arr[] , int size ) { 
+	/*
+
+	std::cout <<"th" << arr[0] << std::endl;
+	std::cout << "ind" << arr[1] << std::endl;
+	std::cout << "mid"<< arr[2] << std::endl;
+	std::cout << "ring" << arr[3] << std::endl;
+	std::cout << "pinky" << arr[4] << std::endl;
+
+	*/
+	int f_pos = -1;
+	int min = arr[0];
+	int min_index = 0;
+	for(int i = 1; i < size; i++) { 
+		if( min > arr[i] ) {
+			min = arr[i];
+			min_index = i;
+			
+		}
+	}
+	//std::cout << min_index << std::endl;
+	//std::cout << min << std::endl;
+	if( min_index + 1 == size ) {
+		if(arr[min_index - 1] - arr[min_index] > 30) {
+			return letts[min_index];
+		}
+	}
+	else{
+		if(arr[min_index +1] - arr[min_index] > 30) {
+			return letts[min_index];
+		}
+	}
+	return NULL;
 }
 
 void SampleListener::onFrame(const Controller& controller) {
@@ -123,16 +159,16 @@ void SampleListener::onFrame(const Controller& controller) {
 	std::cout << "ring" << fingerNumbers[3] << std::endl;
 	std::cout << "pinky" << fingerNumbers[4] << std::endl;
 	*/
-	if(fingerNumbers[0] - fingerNumbers[1] > 16 ) {
 		if(seconds != 0) {
 			return;
 		}
-		cnt_A++;
-		std::cout << "NEW LETTER" << std::endl;
-		std::cout << "A" << std::endl;
-		std::cout << cnt_A << std::endl;
-		std::cout << std::endl << std::endl;
-	}
+		if(getLetter(fingerNumbers , 5 ) == NULL) {
+			return;
+		}
+		std::cout << getLetter(fingerNumbers , 5 );
+
+
+
   }
 
 	/*
