@@ -24,8 +24,8 @@ public:
 	virtual void onDeviceChange(const Controller&);
 	virtual void onServiceConnect(const Controller&);
 	virtual void onServiceDisconnect(const Controller&);
-	virtual void onClick(const Hand &, int, int, int *);
-	virtual void onRelease(const Controller&);
+	virtual char onClick(const Hand &, int, int, int *);
+	virtual void onRelease(char);
 
 private:
 	bool is_start(const Hand& hand);
@@ -43,5 +43,6 @@ private:
 	int last_position;
 	int upper_bound;
 	int lower_bound;
+	char lastKey;
 	bool CapsLock;
 };

@@ -16,6 +16,7 @@ const char LETTERS[3][10] = { { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'
 { 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', ' ', '=' } };
 #define SPEED_OFFSET 1
 int last_row = 0;
+const int LAST_KEY_NONE = -1;
 
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
@@ -26,6 +27,7 @@ void KeyListener::onInit(const Controller& controller) {
 	last_pressed[0] = '!';
 	frame_counter = 0;
 	last_pressed[1] = '!';
+	lastKey = LAST_KEY_NONE;
 	this-> start = false ;
 	CapsLock = false;
 }
@@ -49,8 +51,9 @@ void KeyListener::onExit(const Controller& controller)
 	std::cout << "Exited" << std::endl;
 }
 
-void KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
+char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 {
+	std::cout << "clicked" << std::endl;
 	char current = get_letter(hand, minIndex, findRow(axisZ, arr_size));
 	if (current == last_pressed[index])
 		return;
@@ -65,6 +68,12 @@ void KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 			line.pop_back();
 		last_pressed[index] = current;
 	}
+	return current;
+}
+
+void KeyListener::onRelease(char lastKey)
+{
+	std::cout << "released" << std::endl;
 }
 
 bool KeyListener::is_start(const Hand& hand)
@@ -166,7 +175,8 @@ void KeyListener::onFrame(const Controller& controller) {
 	
 	HandList hands = frame.hands();
 
-	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) {
+	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) 
+	{
 		// Get the first hand
 		const Hand hand = *hl;
 		bool is_left = hand.isLeft();
@@ -183,7 +193,8 @@ void KeyListener::onFrame(const Controller& controller) {
 		int fingerNumbersX[arr_size];
 		int fingerNumbersZ[arr_size];
 		int cnt = 0;
-		for (FingerList::const_iterator fl = testFingers.begin(); fl != testFingers.end(); ++fl) {
+		for (FingerList::const_iterator fl = testFingers.begin(); fl != testFingers.end(); ++fl) 
+		{
 			const Finger finger = *fl;
 			fingerNumbersZ[cnt] = finger.tipPosition()[2];
 			fingerNumbersY[cnt] = finger.tipPosition()[1];
@@ -196,15 +207,15 @@ void KeyListener::onFrame(const Controller& controller) {
 		int index = 0;
 		if (!hand.isLeft())
 			index = 1;
-		int min_index = get_min(fingerNumbersY, arr_size);
+		int minIndex = get_min(fingerNumbersY, arr_size);
 
 		// onClick()
-		if (min_index >= 0)
-		{
-			onClick(hand, min_index, index, fingerNumbersZ);
-		}
+		if (minIndex >= 0)
+			lastKey = onClick(hand, minIndex, index, fingerNumbersZ);
 		else
 		{	
+			if (lastKey != LAST_KEY_NONE)
+				onRelease(lastKey);
 			last_pressed[index] = '!';
 		}
 		print_scr(row);
