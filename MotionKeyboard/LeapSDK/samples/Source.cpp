@@ -16,10 +16,9 @@ using namespace Leap;
 int seconds = 0;
 int cnt_A = 0;
 const int arr_size = 5;
-const char LETTERS[3][10] = {{ 'q', 'w', 'e', 'r' , 't' , 'y' , 'u' , 'i' , 'o' , 'p'} ,
-							 { 'a' , 's', 'd', 'f', 'g' , 'h' , 'j' , 'k' , 'l' , ';'} ,
-							 { 'z', 'x' , 'c' , 'v' , 'b' , 'n', 'm', ',', '.' ,'/' } }
-   
+const char  letts_left[3][10]  = { { 'z', 'x' , 'c' , 'v' , 'b' , 'n', 'm', ',', '.' ,'/' } ,
+                                  { 'a' , 's', 'd', 'f', 'g' , 'h' , 'j' , 'k' , 'l' , ';'} ,
+                                  { 'q', 'w', 'e', 'r' , 't' , 'y' , 'u' , 'i' , 'o' , 'p'} };   
 int last_row = 0;
 
 class SampleListener : public Listener {
@@ -235,23 +234,21 @@ void SampleListener::onFrame(const Controller& controller) {
   std::cout << "ringZ " << fingerNumbersZ[3] << std::endl;
   std::cout << "pinkyZ " << fingerNumbersZ[4] << std::endl;*/
 	 
-    print(hand, get_min(arr, arr_size), find_row(fingerNumbersZ, arr_size));
-	
-	/*
+    print(hand, get_min(arr, arr_size))
     int row = findRow(fingerNumbersZ, arr_size);
-	if(seconds != 0) {
-		if(last_row != row){
-			last_row = row;
+		if(seconds != 0) {
+			if(last_row != row){
+        last_row = row;
+      }
+      else{
+        return;
+      }
+        return;
 		}
-		else{
+
+		if(getLetter(fingerNumbersY , arr_size, last_row, 0 ) == NULL) {
 			return;
 		}
-	return;
-	}
-	
-	if(getLetter(fingerNumbersY , arr_size, last_row, 0 ) == NULL) {
-	return;
-}
 
     if(is_left)
 		  std::cout << getLetter(fingerNumbersY , arr_size, last_row, 0 );
@@ -259,7 +256,7 @@ void SampleListener::onFrame(const Controller& controller) {
       std::cout << getLetter(fingerNumbersY , arr_size, last_row, 5 );
 
   }
-  */
+
 	/*
       // Get finger bones
       for (int b = 0; b < 4; ++b) {
