@@ -13,6 +13,7 @@
 using namespace Leap;
 
 int seconds = 0;
+int cnt_A = 0;
 
 class SampleListener : public Listener {
   public:
@@ -57,6 +58,8 @@ void SampleListener::onExit(const Controller& controller) {
 }
 
 void SampleListener::onFrame(const Controller& controller) {
+	seconds ++;
+	seconds = seconds % 20;
   // Get the most recent frame and report some basic information
   const Frame frame = controller.frame();
   /*
@@ -110,13 +113,25 @@ void SampleListener::onFrame(const Controller& controller) {
 	int cnt = 0;
 	for (FingerList::const_iterator fl = testFingers.begin(); fl != testFingers.end(); ++fl) {
 		const Finger finger = *fl;
-		fingerNumbers[cnt] = finger.tipPosition()[2];
+		fingerNumbers[cnt] = finger.tipPosition()[1];
 		cnt++;
 	}
-	std::cout << fingerNumbers[0] << std::endl;
-	std::cout << fingerNumbers[1] << std::endl;
-	if(fingerNumbers[0] - fingerNumbers[2] > 20 ) {
+	/*
+	std::cout <<"th" << fingerNumbers[0] << std::endl;
+	std::cout << "ind" << fingerNumbers[1] << std::endl;
+	std::cout << "mid"<< fingerNumbers[2] << std::endl;
+	std::cout << "ring" << fingerNumbers[3] << std::endl;
+	std::cout << "pinky" << fingerNumbers[4] << std::endl;
+	*/
+	if(fingerNumbers[0] - fingerNumbers[1] > 16 ) {
+		if(seconds != 0) {
+			return;
+		}
+		cnt_A++;
+		std::cout << "NEW LETTER" << std::endl;
 		std::cout << "A" << std::endl;
+		std::cout << cnt_A << std::endl;
+		std::cout << std::endl << std::endl;
 	}
   }
 
