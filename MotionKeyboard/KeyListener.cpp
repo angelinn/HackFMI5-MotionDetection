@@ -7,6 +7,7 @@
 \******************************************************************************/
 
 #include "KeyListener.h"
+#include <fstream>
 
 int seconds = 0;
 int cnt_A = 0;
@@ -56,7 +57,7 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 	std::cout << "clicked" << std::endl;
 	char current = get_letter(hand, minIndex, findRow(axisZ, arr_size));
 	if (current == last_pressed[index])
-		return;
+		return -100;
 
 	if (current != '='){
 		line.push_back(current);
@@ -73,7 +74,7 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 
 void KeyListener::onRelease(char lastKey)
 {
-	std::cout << "released" << std::endl;
+
 }
 
 bool KeyListener::is_start(const Hand& hand)
@@ -215,7 +216,10 @@ void KeyListener::onFrame(const Controller& controller) {
 		else
 		{	
 			if (lastKey != LAST_KEY_NONE)
+			{
 				onRelease(lastKey);
+				lastKey = LAST_KEY_NONE;
+			}
 			last_pressed[index] = '!';
 		}
 		print_scr(row);
