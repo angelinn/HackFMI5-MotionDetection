@@ -60,6 +60,7 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 {
 	std::cout << "clicked" << std::endl;
 	char current = get_letter(hand, minIndex, findRow(axisZ, arr_size));
+	
 	if (current == last_pressed[index])
 		return -100;
 
@@ -81,7 +82,7 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 
 void KeyListener::onRelease(char lastKey)
 {
-	keyboard.changeColours(lastKey, white);
+	keyboard.RedrawEmptyBoard();
 }
 
 bool KeyListener::is_start(const Hand& hand)
@@ -219,6 +220,7 @@ void KeyListener::onFrame(const Controller& controller) {
 
 		// onClick()
 		if (minIndex >= 0)
+
 			lastKey = onClick(hand, minIndex, index, fingerNumbersZ);
 		else
 		{	
@@ -230,6 +232,10 @@ void KeyListener::onFrame(const Controller& controller) {
 			last_pressed[index] = '!';
 		}
 		print_scr(row);
+
+
+		
+		SDL_RenderPresent(keyboard.ren);
 	}
 }
 

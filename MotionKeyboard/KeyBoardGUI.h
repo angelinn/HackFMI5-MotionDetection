@@ -33,7 +33,7 @@ private:
 class KeyBoardGUI
 {
 public:
-	KeyBoardGUI()
+	KeyBoardGUI() : ROWS(3), KEYS_PER_ROW(10)
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) != 0){
 			std::cout << "SDL_Init Error: " << SDL_GetError() << std::endl;
@@ -70,7 +70,7 @@ public:
 			{
 				if (keys[i][j].symbol[0] == letter)
 				{
-					delete keys[i][j].texture;
+					//delete keys[i][j].texture;
 					keys[i][j].color = color;
 					DrawKey(keys[i][j]);
 				}
@@ -181,6 +181,19 @@ public:
 		SDL_RenderPresent(ren);
 	}
 
+	void RedrawEmptyBoard()
+	{
+		SDL_RenderClear(ren);
+		for (int i = 0; i < ROWS; i++)
+		{
+			for (int j = 0; j < KEYS_PER_ROW; j++)
+			{
+				keys[i][j].color.r = keys[i][j].color.g = keys[i][j].color.b = keys[i][j].color.a = 255;
+				DrawKey(keys[i][j]); // This function sets the pointer of SDL_Texture too.... (bad).
+			}
+		}
+	}
+
 	SDL_Renderer* ren;
 	SDL_Window* win;
 	int screen_width;
@@ -189,7 +202,7 @@ public:
 	size_t FONT_SIZE;
 	std::string letters;
 	std::vector<std::vector<Key>> keys;
-	const int KEYS_PER_ROW = 10; // Keyboard symbols per row.
-	const int ROWS = 3; // Keyboard rows.
+	const int KEYS_PER_ROW;
+	const int ROWS ;
 
 };
