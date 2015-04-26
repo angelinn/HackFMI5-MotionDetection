@@ -22,14 +22,14 @@ const int LAST_KEY_NONE = -1;
 const std::string fingerNames[] = { "Thumb", "Index", "Middle", "Ring", "Pinky" };
 const std::string boneNames[] = { "Metacarpal", "Proximal", "Middle", "Distal" };
 const std::string stateNames[] = { "STATE_INVALID", "STATE_START", "STATE_UPDATE", "STATE_END" };
-const SDL_Color white = { 255, 255, 255, 255 };
-const SDL_Color red = { 255, 0, 0, 255 };
+const SDL_Color KeyListener::white = { 255, 255, 255, 255 };
+const SDL_Color KeyListener::red = { 255, 0, 0, 255 };
+const SDL_Color KeyListener::GREEN = { 0, 255, 0, 255 };
 
-void KeyListener::onInit(const Controller& controller) {
+void KeyListener::onInit(const Controller& controller) 
+{
 	std::cout << "Initialized" << std::endl;
-	last_pressed[0] = '!';
 	frame_counter = 0;
-	last_pressed[1] = '!';
 	lastKey = LAST_KEY_NONE;
 	this->start = false ;
 	CapsLock = false;
@@ -37,7 +37,8 @@ void KeyListener::onInit(const Controller& controller) {
 	keyboard.DrawKeyBoard();
 }
 
-void KeyListener::onConnect(const Controller& controller) {
+void KeyListener::onConnect(const Controller& controller) 
+{
 	std::cout << "Connected" << std::endl;
 	controller.enableGesture(Gesture::TYPE_CIRCLE);
 	controller.enableGesture(Gesture::TYPE_KEY_TAP);
@@ -61,19 +62,19 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 	std::cout << "clicked" << std::endl;
 	char current = get_letter(hand, minIndex, findRow(axisZ, arr_size));
 	
-	if (current == last_pressed[index])
+	if (current == lastPressed[index].key)
 		return -100;
 
 	if (current != '=')
 	{
 		line.push_back(current);
-		last_pressed[index] = current;
+		lastPressed[index].key = current;
 	}
 	else
 	{
 		if (!line.empty())
 			line.pop_back();
-		last_pressed[index] = current;
+		lastPressed[index].key = current;
 	}
 
 	keyboard.changeColours(current, red);
@@ -126,6 +127,7 @@ bool KeyListener::is_start(const Hand& hand)
 	else 
 		return true;
 }
+
 int KeyListener::get_min(int* arr, int size)
 {
 	int f_pos = -1;
@@ -133,7 +135,8 @@ int KeyListener::get_min(int* arr, int size)
 	int min_index = 0;
 	for (int i = 1; i < size; i++) 
 	{
-		if (min > arr[i]) {
+		if (min > arr[i]) 
+		{
 			min = arr[i];
 			min_index = i;
 		}
@@ -156,7 +159,9 @@ char KeyListener::get_letter(const Hand& hand, int index, int row)
 
 	return LETTERS[2 - row][index];
 }
-int KeyListener::findRow(int arr[], int size){
+
+int KeyListener::findRow(int arr[], int size)
+{
 	if (arr[2]  < lower_bound)
 	{
 		return 2;
@@ -172,21 +177,22 @@ int KeyListener::findRow(int arr[], int size){
 
 }
 
-void KeyListener::print_scr(int row){
+void KeyListener::print_scr(int row)
+{
 	system("cls");
 	std::cout << "You are on row: "<< row << std::endl;
-	for ( int i =0; i < line.size(); i++) {
+	for (int i = 0; i < line.size(); i++) 
+	{
 		std::cout << line[i];
 	}
 }
 
-void KeyListener::onFrame(const Controller& controller) {
-	
+void KeyListener::onFrame(const Controller& controller) 
+{	
 	seconds++;
 	seconds = seconds % 20;
 	// Get the most recent frame and report some basic information
 	const Frame frame = controller.frame();
-	
 	HandList hands = frame.hands();
 	
 	if (hands.isEmpty())
@@ -198,7 +204,7 @@ void KeyListener::onFrame(const Controller& controller) {
 		const Hand hand = *hl;
 		bool is_left = hand.isLeft();
 	
-			// Get the hand's normal vector and direction
+		// Get the hand's normal vector and direction
 		const Vector normal = hand.palmNormal();
 		const Vector direction = hand.direction();
 
@@ -219,19 +225,18 @@ void KeyListener::onFrame(const Controller& controller) {
 			cnt++;
 		}
 		
-	
 		int row = findRow(fingerNumbersZ, arr_size);
-		
-
 		int index = 0;
 		if (!hand.isLeft())
 			index = 1;
 		int minIndex = get_min(fingerNumbersY, arr_size);
+		
 		onRow(index, row);
-		// onClick()
-		if (minIndex >= 0)
 
+		if (minIndex >= 0)
+		{
 			lastKey = onClick(hand, minIndex, index, fingerNumbersZ);
+		}
 		else
 		{	
 			if (lastKey != LAST_KEY_NONE)
@@ -239,19 +244,21 @@ void KeyListener::onFrame(const Controller& controller) {
 				onRelease(lastKey);
 				lastKey = LAST_KEY_NONE;
 			}
-			last_pressed[index] = '!';
+			lastPressed[index].key = '!';
 		}
 		print_scr(row);
-
-
-		
 		SDL_RenderPresent(keyboard.ren);
 	}
 }
 
 void KeyListener::onRow(int handIndex, int row)
 {
-	keyboard.DrawHandPosition(handIndex, row);
+	if (lastPressed[handIndex].row != row)
+	{
+		lastPressed[handIndex].row = row;
+		keyboard.DrawHandPosition(handIndex, row);
+	}
+	
 }
 
 void KeyListener::onFocusGained(const Controller& controller) {
@@ -260,6 +267,7 @@ void KeyListener::onFocusGained(const Controller& controller) {
 
 void KeyListener::onFocusLost(const Controller& controller) {
 	std::cout << "Focus Lost" << std::endl;
+	keyboard.RedrawEmptyBoard();
 }
 
 void KeyListener::onDeviceChange(const Controller& controller) {

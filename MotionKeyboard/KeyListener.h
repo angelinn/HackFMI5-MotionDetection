@@ -1,3 +1,5 @@
+#pragma once
+
 #include <iostream>
 #include <string.h>
 #include "LeapSDK/include/Leap.h"
@@ -9,7 +11,12 @@ using std::vector;
 
 using namespace Leap;
 
-
+struct KeyHistory
+{
+	int row;
+	char key;
+	KeyHistory() : row(-100), key('!') {};
+};
 
 class KeyListener : public Listener
 {
@@ -28,6 +35,11 @@ public:
 	virtual void onRelease(char);
 	void onRow(int, int);
 
+public:
+	static const SDL_Color white;
+	static const SDL_Color red;
+	static const SDL_Color GREEN;
+
 private:
 	bool is_start(const Hand& hand);
 	char getLetter(int arr[], int size, int row, int offset);
@@ -36,7 +48,7 @@ private:
 	std::vector< std::pair<int, int> > sorted(int* arr, int size);
 	char get_letter(const Hand& hand, int index, int row);
 	void print_scr(int row);
-	char last_pressed[2];
+	KeyHistory lastPressed[2];
 	unsigned int frame_counter;
 private:
 	vector<char> line;
