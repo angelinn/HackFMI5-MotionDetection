@@ -26,6 +26,7 @@ public:
 	virtual void onServiceDisconnect(const Controller&);
 	virtual char onClick(const Hand &, int, int, int *);
 	virtual void onRelease(char);
+	void onRow(int, int);
 
 private:
 	bool is_start(const Hand& hand);

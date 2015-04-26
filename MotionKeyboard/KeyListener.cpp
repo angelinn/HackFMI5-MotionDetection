@@ -31,7 +31,7 @@ void KeyListener::onInit(const Controller& controller) {
 	frame_counter = 0;
 	last_pressed[1] = '!';
 	lastKey = LAST_KEY_NONE;
-	this-> start = false ;
+	this->start = false ;
 	CapsLock = false;
 	keyboard.CreateWindow();
 	keyboard.DrawKeyBoard();
@@ -64,7 +64,8 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 	if (current == last_pressed[index])
 		return -100;
 
-	if (current != '='){
+	if (current != '=')
+	{
 		line.push_back(current);
 		last_pressed[index] = current;
 	}
@@ -121,7 +122,8 @@ bool KeyListener::is_start(const Hand& hand)
 			last_position = new_z;
 			return false;
 		}
-	}else 
+	}
+	else 
 		return true;
 }
 int KeyListener::get_min(int* arr, int size)
@@ -129,11 +131,11 @@ int KeyListener::get_min(int* arr, int size)
 	int f_pos = -1;
 	int min = arr[0];
 	int min_index = 0;
-	for (int i = 1; i < size; i++) {
+	for (int i = 1; i < size; i++) 
+	{
 		if (min > arr[i]) {
 			min = arr[i];
 			min_index = i;
-
 		}
 	}
 	
@@ -155,13 +157,16 @@ char KeyListener::get_letter(const Hand& hand, int index, int row)
 	return LETTERS[2 - row][index];
 }
 int KeyListener::findRow(int arr[], int size){
-	if (arr[2]  < lower_bound){
+	if (arr[2]  < lower_bound)
+	{
 		return 2;
 	}
-	else if (arr[2] > upper_bound){
+	else if (arr[2] > upper_bound)
+	{
 		return 0;
 	}
-	else{
+	else
+	{
 		return 1;
 	}
 
@@ -189,8 +194,8 @@ void KeyListener::onFrame(const Controller& controller) {
 		// Get the first hand
 		const Hand hand = *hl;
 		bool is_left = hand.isLeft();
-		
-		// Get the hand's normal vector and direction
+	
+			// Get the hand's normal vector and direction
 		const Vector normal = hand.palmNormal();
 		const Vector direction = hand.direction();
 
@@ -213,6 +218,7 @@ void KeyListener::onFrame(const Controller& controller) {
 		
 	
 		int row = findRow(fingerNumbersZ, arr_size);
+
 		int index = 0;
 		if (!hand.isLeft())
 			index = 1;
@@ -237,6 +243,11 @@ void KeyListener::onFrame(const Controller& controller) {
 		
 		SDL_RenderPresent(keyboard.ren);
 	}
+}
+
+void KeyListener::onRow(int handIndex, int row)
+{
+	keyboard.DrawHandPosition(handIndex, row);
 }
 
 void KeyListener::onFocusGained(const Controller& controller) {

@@ -84,11 +84,13 @@ public:
 		SDL_Rect dst;
 		dst.x = x;
 		dst.y = y;
-		if (clip != nullptr){
+		if (clip != nullptr)
+		{
 			dst.w = clip->w;
 			dst.h = clip->h;
 		}
-		else {
+		else 
+		{
 			SDL_QueryTexture(tex, NULL, NULL, &dst.w, &dst.h);
 		}
 		renderTexture(tex, ren, dst, clip);
@@ -152,6 +154,11 @@ public:
 		}
 
 		renderTexture(key.texture, ren, key.x, key.y);
+	}
+
+	void DrawHandPosition(int handIndex, int row)
+	{
+
 	}
 
 	void DrawKeyBoard()
