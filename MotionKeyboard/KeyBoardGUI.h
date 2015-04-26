@@ -46,7 +46,7 @@ public:
 		SDL_Rect *clip = nullptr);
 
 	SDL_Texture* renderText(const std::string &message, const std::string &fontFile, SDL_Color color, int fontSize, SDL_Renderer *renderer);
-	void CreateWindow();
+	void createWindow();
 
 	void DrawKey(Key& key);
 	void DrawHandPosition(int handIndex, int row);

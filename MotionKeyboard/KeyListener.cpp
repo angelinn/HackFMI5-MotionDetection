@@ -14,7 +14,7 @@ int cnt_A = 0;
 const int arr_size = 5;
 const char LETTERS[3][10] = { { 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p' },
 { 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', '\n' },
-{ 'z', 'x', 'c', 'v', 'b', 'n', 'm', '.', ' ', '=' } };
+{ 'z', 'x', 'c', 'v', 'b', 'n', 'm', ' ', '=', '=' } };
 #define SPEED_OFFSET 1
 int last_row = 0;
 const int LAST_KEY_NONE = -1;
@@ -33,7 +33,8 @@ void KeyListener::onInit(const Controller& controller)
 	lastKey = LAST_KEY_NONE;
 	this->start = false ;
 	CapsLock = false;
-	keyboard.CreateWindow();
+	play = false;
+	keyboard.createWindow();
 	keyboard.DrawKeyBoard();
 }
 
@@ -67,6 +68,10 @@ char KeyListener::onClick(const Hand& hand, int minIndex, int index, int* axisZ)
 
 	if (current != '=')
 	{
+		if(play)
+		{
+			Beep( current * 1200 , 200);
+		}
 		line.push_back(current);
 		lastPressed[index].key = current;
 	}
@@ -142,9 +147,9 @@ int KeyListener::get_min(int* arr, int size)
 		}
 	}
 	
-	if (min_index + 1 == size &&  arr[min_index - 1] - arr[min_index] > 20)
+	if (min_index + 1 == size &&  arr[min_index - 1] - arr[min_index] > 30)
 		return min_index;
-	else if (arr[min_index + 1] - arr[min_index] > 20)
+	else if (arr[min_index + 1] - arr[min_index] > 30)
 		return min_index;
 
 	return -1;
@@ -185,6 +190,16 @@ void KeyListener::print_scr(int row)
 	{
 		std::cout << line[i];
 	}
+	std::string ime = "pi";
+	for(int i = 0 ; i < ime.size() ; i++)
+	{
+		
+		if( i >= line.size())
+			return;
+		if(ime[i] != line[i])
+			return;
+	}
+	play = true;
 }
 
 void KeyListener::onFrame(const Controller& controller) 

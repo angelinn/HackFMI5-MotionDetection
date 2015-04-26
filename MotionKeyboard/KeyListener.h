@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include "KeyBoardGUI.h"
+#include <Windows.h>
 
 using std::vector;
 
@@ -56,7 +57,9 @@ private:
 	int last_position;
 	int upper_bound;
 	int lower_bound;
+	bool play;
 	char lastKey;
 	bool CapsLock;
 	KeyBoardGUI keyboard;
+
 };

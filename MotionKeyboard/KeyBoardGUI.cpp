@@ -13,8 +13,8 @@ KeyBoardGUI::KeyBoardGUI() : ROWS(3), KEYS_PER_ROW(10)
 
 	FONT_SIZE = 32;
 
-	screen_width = 1200;
-	screen_height = 600;
+	screen_width = 840;
+	screen_height = 700;
 
 	// Resize the table for the keyboard.
 	keys.resize(ROWS);
@@ -87,7 +87,7 @@ SDL_Texture* KeyBoardGUI::renderText(const std::string &message, const std::stri
 	TTF_CloseFont(font);
 	return texture;
 }
-void KeyBoardGUI::CreateWindow()
+void KeyBoardGUI::createWindow()
 {
 	win = SDL_CreateWindow("Hello world", 0, 0, screen_width, screen_height, SDL_WINDOW_SHOWN);
 	if (win == nullptr)
