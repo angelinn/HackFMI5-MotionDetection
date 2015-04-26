@@ -188,6 +188,9 @@ void KeyListener::onFrame(const Controller& controller) {
 	const Frame frame = controller.frame();
 	
 	HandList hands = frame.hands();
+	
+	if (hands.isEmpty())
+		keyboard.RedrawEmptyBoard();
 
 	for (HandList::const_iterator hl = hands.begin(); hl != hands.end(); ++hl) 
 	{
@@ -218,12 +221,13 @@ void KeyListener::onFrame(const Controller& controller) {
 		
 	
 		int row = findRow(fingerNumbersZ, arr_size);
+		
 
 		int index = 0;
 		if (!hand.isLeft())
 			index = 1;
 		int minIndex = get_min(fingerNumbersY, arr_size);
-
+		onRow(index, row);
 		// onClick()
 		if (minIndex >= 0)
 

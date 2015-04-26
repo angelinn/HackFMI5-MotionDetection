@@ -195,6 +195,7 @@ public:
 		{
 			for (int j = 0; j < KEYS_PER_ROW; j++)
 			{
+				// delete
 				keys[i][j].color.r = keys[i][j].color.g = keys[i][j].color.b = keys[i][j].color.a = 255;
 				DrawKey(keys[i][j]); // This function sets the pointer of SDL_Texture too.... (bad).
 			}
